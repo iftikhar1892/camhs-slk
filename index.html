@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CAMHS Sialkot Hospital System</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background-color: #f9f9f9;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #aaa;
+    }
+    h1 {
+      text-align: center;
+      color: #0056b3;
+      margin-bottom: 5px;
+    }
+    .form-title {
+      text-align: center;
+      color: #28a745;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .tabs {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .tabs button {
+      margin: 0 5px;
+      padding: 10px 20px;
+      background-color: #28a745;
+    }
+    .form-section {
+      display: none;
+    }
+    .form-section.active {
+      display: block;
+    }
+    .watermark {
+      position: fixed;
+      bottom: 8px;
+      right: 15px;
+      font-size: 12px;
+      opacity: 0.5;
+    }
+    .auto-fill {
+      background-color: #e8f5e9;
+      font-style: italic;
+    }
+    #result {
+      margin-top: 20px;
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .nominal-roll-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .nominal-roll-table th, .nominal-roll-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .nominal-roll-table th {
+      background-color: #f2f2f2;
+    }
+    .nominal-roll-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .progress-reports {
+      margin-top: 20px;
+    }
+    .progress-report {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    .search-box {
+      background-color: #f0f8ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .backup-box {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .backup-download {
+      background-color: #e3f2fd;
+    }
+    .backup-upload {
+      background-color: #fff3e0;
+    }
+    .backup-auto {
+      background-color: #f3e5f5;
+    }
+    .backup-notes {
+      background-color: #ffebee;
+    }
+    .google-drive-status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .connected {
+      background-color: #e6f7ee;
+      color: #2e7d32;
+    }
+    .disconnected {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CAMHS Sialkot - Patient Management</h1>
+    <div id="currentFormTitle" class="form-title">Initial Intake Form</div>
+
+    <div class="tabs">
+      <button onclick="switchTab('intake')">Initial Intake</button>
+      <button onclick="switchTab('attendance')">Attendance</button>
+      <button onclick="switchTab('progress')">Progress Report</button>
+      <button onclick="switchTab('patientFeedback')">Patient Feedback</button>
+      <button onclick="switchTab('nominalRoll')">Nominal Roll</button>
+      <button onclick="switchTab('backup')">💾 Backup</button>
+    </div>
+
+    <!-- Intake Form -->
+    <div class="form-section active" id="intake">
+      <label>Patient ID</label><input type="text" id="pid">
+      <label>Patient Name</label><input type="text" id="pname">
+      <label>Rank</label><input type="text" id="rank">
+      <label>Father Name</label><input type="text" id="fname">
+      <label>Age</label><input type="number" id="age">
+      <label>Gender</label><input type="text" id="gender">
+      <label>Referred By</label><input type="text" id="referred">
+      <label>Therapy</label><input type="text" id="therapy">
+      <label>Therapist</label><input type="text" id="therapist">
+      <label>Disorder</label><input type="text" id="disorder">
+      <label>Admission Date</label><input type="date" id="admit">
+      <label>Address</label><textarea id="address"></textarea>
+      <label>Contact</label><input type="text" id="contact">
+      <button onclick="saveIntake()">💾 Save Intake</button>
+    </div>
+
+    <!-- Attendance Form -->
+    <div class="form-section" id="attendance">
+      <label>Patient ID</label><input type="text" id="apid" onchange="loadPatientForAttendance()">
+      <label>Patient Name</label><input type="text" id="aPatientName" class="auto-fill" readonly>
+      <label>Month & Year</label><input type="month" id="sessionMonth">
+      <label>Number of Sessions This Month</label><input type="number" id="sessionCount" min="0">
+      <button onclick="saveAttendance()">💾 Save Attendance</button>
+    </div>
+
+    <!-- Progress Report -->
+    <div class="form-section" id="progress">
+      <div class="search-box">
+        <label>Search Patient by ID</label>
+        <input type="text" id="searchProgressId" placeholder="Enter Patient ID">
+        <button onclick="searchProgressReports()">🔍 Search Progress</button>
+      </div>
+      
+      <label>Patient ID</label><input type="text" id="tpid" onchange="loadPatientForProgress()">
+      <label>Patient Name</label><input type="text" id="tPatientName" class="auto-fill" readonly>
+      <label>Therapist Name</label><input type="text" id="tTherapistName" class="auto-fill" readonly>
+      <label>Disorder/Therapy</label><input type="text" id="tTherapyType" class="auto-fill" readonly>
+      <label>Report Month</label><input type="month" id="reportMonth">
+      <label>Therapist Reviews</label><textarea id="tReviews"></textarea>
+      <label>Progress Summary</label><textarea id="summary"></textarea>
+      <button onclick="saveProgress()">💾 Save Progress</button>
+      
+      <div class="progress-reports" id="progressReportsList"></div>
+      
+      <button onclick="printReport()">🖨️ Print Current Report</button>
+    </div>
+
+    <!-- Patient Feedback -->
+    <div class="form-section" id="patientFeedback">
+      <label>Patient ID</label><input type="text" id="pfpid" onchange="loadPatientForFeedback()">
+      <label>Patient Name</label><input type="text" id="pfPatientName" class="auto-fill" readonly>
+      <label>Therapist</label><input type="text" id="pfTherapist" class="auto-fill" readonly>
+      <label>Disorder</label><input type="text" id="pfDisorder" class="auto-fill" readonly>
+      <label>Parents Feedback</label><textarea id="pfComments"></textarea>
+      <button onclick="savePatientFeedback()">💾 Save Feedback</button>
+    </div>
+
+    <!-- Nominal Roll -->
+    <div class="form-section" id="nominalRoll">
+      <div id="nominalRollList"></div>
+      <button onclick="printNominalRoll()" style="margin-top: 20px;">🖨️ Print Nominal Roll</button>
+      <button onclick="exportToExcel()" style="margin-top: 20px; background-color: #2e7d32;">📊 Export to Excel</button>
+    </div>
+
+    <!-- Backup Section -->
+    <div class="form-section" id="backup">
+      <h3>🔒 Data Backup & Recovery</h3>
+      
+      <div class="backup-box backup-download">
+        <h4>📥 Download Backup</h4>
+        <p>Save all patient data to your laptop's drive as a backup file.</p>
+        <button onclick="downloadBackup()" style="background-color: #4caf50;">📥 Download Backup File</button>
+        <button onclick="downloadExcelBackup()" style="background-color: #4caf50;">📊 Download Excel Backup</button>
+        <p><small>This will download files containing all patient data to your Downloads folder.</small></p>
+      </div>
+      
+      <div class="backup-box backup-upload">
+        <h4>📤 Upload Backup</h4>
+        <p>Restore patient data from a previously saved backup file.</p>
+        <input type="file" id="backupFile" accept=".json" style="margin-bottom: 10px;">
+        <button onclick="uploadBackup()" style="background-color: #ff9800;">📤 Upload & Restore Backup</button>
+        <p><small>Select the backup .json file from your computer to restore all data.</small></p>
+      </div>
+      
+      <div class="backup-box backup-auto">
+        <h4>🔄 Auto-Backup Status</h4>
+        <p>System automatically creates backups when you save patient data.</p>
+        <button onclick="toggleAutoBackup()" id="autoBackupBtn" style="background-color: #9c27b0;">Enable Auto-Backup</button>
+        <p id="autoBackupStatus"><small>Auto-backup is currently disabled.</small></p>
+      </div>
+      
+      <div class="backup-box" style="background-color: #e8f5e9;">
+        <h4>☁️ Google Drive Backup</h4>
+        <p>Connect to your Google Drive for automatic cloud backups</p>
+        <button onclick="handleAuthClick()" id="authorize_button" style="background-color: #4285F4;">Connect Google Drive</button>
+        <button onclick="handleSignoutClick()" id="signout_button" style="background-color: #EA4335; display: none;">Disconnect</button>
+        <div id="googleDriveStatus" class="google-drive-status disconnected">Not connected to Google Drive</div>
+        <p><small>Connected to: <span id="userEmail"></span></small></p>
+        <button onclick="backupToGoogleDrive()" id="backupToDriveBtn" style="background-color: #34A853; display: none;">Backup Now to Google Drive</button>
+      </div>
+      
+      <div class="backup-box backup-notes">
+        <h4>⚠️ Important Notes</h4>
+        <ul>
+          <li>System will automatically backup data to Google Drive when connected</li>
+          <li>Excel exports contain all patient data in spreadsheet format</li>
+          <li>Regular backups protect against data loss</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <div class="watermark">CAMHS SIALKOT</div>
+
+  <script>
+    // Initialize empty patients object
+    window.patients = {};
+
+    // Form titles for each tab
+    const formTitles = {
+      'intake': 'Initial Intake Form',
+      'attendance': 'Patient Attendance Form',
+      'progress': 'Progress Report Form',
+      'patientFeedback': 'Patient Feedback Form',
+      'nominalRoll': 'Nominal Roll',
+      'backup': 'Data Backup & Recovery'
+    };
+
+    // Auto-backup setting
+    let autoBackupEnabled = false;
+    let googleDriveConnected = false;
+    
+    // Google Drive API configuration
+    const CLIENT_ID = 'YOUR_CLIENT_ID'; // Replace with your actual client ID
+    const API_KEY = 'YOUR_API_KEY';     // Replace with your actual API key
+    const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+    
+    let tokenClient;
+    let gapiInited = false;
+    let gisInited = false;
+
+    function switchTab(tab) {
+      document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      document.getElementById('currentFormTitle').textContent = formTitles[tab];
+      
+      if (tab === 'nominalRoll') {
+        generateNominalRoll();
+      } else if (tab === 'progress') {
+        loadProgressReports();
+      }
+    }
+
+    function saveIntake() {
+      const patient = {
+        pid: document.getElementById('pid').value,
+        pname: document.getElementById('pname').value,
+        rank: document.getElementById('rank').value,
+        fname: document.getElementById('fname').value,
+        age: document.getElementById('age').value,
+        gender: document.getElementById('gender').value,
+        referred: document.getElementById('referred').value,
+        therapy: document.getElementById('therapy').value,
+        therapist: document.getElementById('therapist').value,
+        disorder: document.getElementById('disorder').value,
+        admit: document.getElementById('admit').value,
+        address: document.getElementById('address').value,
+        contact: document.getElementById('contact').value,
+        attendance: [],
+        progress: [],
+        patientFeedback: []
+      };
+      
+      window.patients = window.patients || {};
+      window.patients[patient.pid] = patient;
+      
+      // Auto-backup after saving
+      if (autoBackupEnabled) {
+        downloadBackup();
+      }
+      
+      // Auto-backup to Google Drive if connected
+      if (googleDriveConnected) {
+        backupToGoogleDrive();
+      }
+      
+      alert("Patient intake saved!");
+      generateNominalRoll();
+    }
+
+    function loadPatientForAttendance() {
+      const pid = document.getElementById('apid').value;
+      window.patients = window.patients || {};
+      const data = window.patients[pid];
+      
+      if (data) {
+        document.getElementById('aPatientName').value = data.pname;
+      } else {
+        document.getElementById('aPatientName').value = '';
+      }
+    }
+
+    function loadPatientForProgress() {
+      const pid = document.getElementById('tpid').value;
+      window.patients = window.patients || {};
+      const data = window.patients[pid];
+      
+      if (data) {
+        document.getElementById('tPatientName').value = data.pname;
+        document.getElementById('tTherapistName').value = data.therapist;
+        document.getElementById('tTherapyType').value = data.therapy;
+      } else {
+        document.getElementById('tPatientName').value = '';
+        document.getElementById('tTherapistName').value = '';
+        document.getElementById('tTherapyType').value = '';
+      }
+    }
+
+    function loadPatientForFeedback() {
+      const pid = document.getElementById('pfpid').value;
+      window.patients = window.patients || {};
+      const data = window.patients[pid];
+      
+      if (data) {
+        document.getElementById('pfPatientName').value = data.pname;
+        document.getElementById('pfTherapist').value = data.therapist;
+        document.getElementById('pfDisorder').value = data.disorder;
+      } else {
+        document.getElementById('pfPatientName').value = '';
+        document.getElementById('pfTherapist').value = '';
+        document.getElementById('pfDisorder').value = '';
+      }
+    }
+
+    function saveAttendance() {
+      const pid = document.getElementById('apid').value;
+      window.patients = window.patients || {};
+      const data = window.patients[pid];
+      
+      if (data) {
+        const monthYear = document.getElementById('sessionMonth').value;
+        const sessionCount = parseInt(document.getElementById('sessionCount').value) || 0;
+        
+        data.attendance.push({
+          month: monthYear,
+          sessions: sessionCount
+        });
+        
+        window.patients[pid] = data;
+        
+        // Auto-backup after saving
+        if (autoBackupEnabled) {
+          downloadBackup();
+        }
+        
+        // Auto-backup to Google Drive if connected
+        if (googleDriveConnected) {
+          backupToGoogleDrive();
+        }
+        
+        alert("Attendance saved!");
+      } else {
+        alert("Patient not found.");
+      }
+    }
+
+    function saveProgress() {
+      const pid = document.getElementById('tpid').value;
+      window.patients = window.patients || {};
+      const data = window.patients[pid];
+      
+      if (data) {
+        const monthYear = document.getElementById('reportMonth').value;
+        const reviews = document.getElementById('tReviews').value;
+        const summary = document.getElementById('summary').value;
+        
+        data.progress.push({
+          patientName: document.getElementById('tPatientName').value,
+          therapistName: document.getElementById('tTherapistName').value,
+          therapyType: document.getElementById('tTherapyType').value,
+          reviews: reviews,
+          summary: summary,
+          date: new Date().toLocaleDateString(),
+          month: monthYear
+        });
+        
+        window.patients[pid] = data;
+        
+        // Auto-backup after saving
+        if (autoBackupEnabled) {
+          downloadBackup();
+        }
+        
+        // Auto-backup to Google Drive if connected
+        if (googleDriveConnected) {
+          backupToGoogleDrive();
+        }
+        
+        alert("Progress report saved!");
+        loadProgressReports();
+        
+        // Clear the form
+        document.getElementById('tReviews').value = '';
+        document.getElementById('summary').value = '';
+      } else {
+        alert("Patient not found.");
+      }
+    }
+
+    function loadProgressReports() {
+      const pid = document.getElementById('tpid').value;
+      window.patients = window.patients || {};
+      const data = window.patients[pid];
+      const progressReportsList = document.getElementById('progressReportsList');
+      
+      if (!data || !data.progress || data.progress.length === 0) {
+        progressReportsList.innerHTML = '<p>No progress reports available for this patient.</p>';
+        return;
+      }
+      
+      let html = '<h3>Previous Progress Reports</h3>';
+      
+      // Sort reports by month (newest first)
+      const sortedReports = [...data.progress].sort((a, b) => {
+        return new Date(b.month) - new Date(a.month);
+      });
+      
+      sortedReports.forEach(report => {
+        html += `
+          <div class="progress-report">
+            <h4>Report for ${report.month}</h4>
+            <p><strong>Therapist:</strong> ${report.therapistName}</p>
+            <p><strong>Therapy Type:</strong> ${report.therapyType}</p>
+            <p><strong>Reviews:</strong> ${report.reviews || 'No reviews entered'}</p>
+            <p><strong>Summary:</strong> ${report.summary || 'No summary entered'}</p>
+            <p><em>Date: ${report.date}</em></p>
+            <button onclick="printSingleReport('${pid}', '${report.month}')">🖨️ Print This Report</button>
+          </div>
+        `;
+      });
+      
+      progressReportsList.innerHTML = html;
+    }
+
+    function searchProgressReports() {
+      const pid = document.getElementById('searchProgressId').value;
+      if (!pid) {
+        alert("Please enter a Patient ID");
+        return;
+      }
+      
+      document.getElementById('tpid').value = pid;
+      loadPatientForProgress();
+      loadProgressReports();
+    }
+
+    function savePatientFeedback() {
+      const pid = document.getElementById('pfpid').value;
+      window.patients = window.patients || {};
+      const data = window.patients[pid];
+      
+      if (data) {
+        data.patientFeedback.push({
+          patientName: document.getElementById('pfPatientName').value,
+          therapist: document.getElementById('pfTherapist').value,
+          disorder: document.getElementById('pfDisorder').value,
+          comments: document.getElementById('pfComments').value,
+          date: new Date().toLocaleDateString()
+        });
+        
+        window.patients[pid] = data;
+        
+        // Auto-backup after saving
+        if (autoBackupEnabled) {
+          downloadBackup();
+        }
+        
+        // Auto-backup to Google Drive if connected
+        if (googleDriveConnected) {
+          backupToGoogleDrive();
+        }
+        
+        alert("Patient feedback saved!");
+      } else {
+        alert("Patient not found.");
+      }
+    }
+
+    function generateNominalRoll() {
+      window.patients = window.patients || {};
+      const nominalRollList = document.getElementById('nominalRollList');
+      
+      if (Object.keys(window.patients).length === 0) {
+        nominalRollList.innerHTML = '<p>No patients in the system yet.</p>';
+        return;
+      }
+      
+      let html = `
+        <h3>Patient Nominal Roll</h3>
+        <table class="nominal-roll-table">
+          <thead>
+            <tr>
+              <th>Patient ID</th>
+              <th>Name</th>
+              <th>Therapist</th>
+              <th>Admission Date</th>
+              <th>Disorder</th>
+              <th>Contact</th>
+              <th>Total Visits</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      for (const pid in window.patients) {
+        const data = window.patients[pid];
+        const totalVisits = data.attendance.reduce((sum, a) => sum + (a.sessions || 0), 0);
+        
+        html += `
+          <tr>
+            <td>${data.pid}</td>
+            <td>${data.pname}</td>
+            <td>${data.therapist}</td>
+            <td>${data.admit}</td>
+            <td>${data.disorder}</td>
+            <td>${data.contact}</td>
+            <td>${totalVisits}</td>
+          </tr>
+        `;
+      }
+      
+      html += `
+          </tbody>
+        </table>
+      `;
+      
+      nominalRollList.innerHTML = html;
+    }
+
+    function printNominalRoll() {
+      const content = document.getElementById('nominalRollList').innerHTML;
+      const printDate = new Date().toLocaleDateString();
+      const win = window.open('', '', 'width=900,height=700');
+      win.document.write(`
+        <html><head><title>Nominal Roll</title>
+        <style>
+          body {
+            font-family: sans-serif;
+            background-color: white;
+          }
+          .nominal-roll-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+          .nominal-roll-table th, .nominal-roll-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+          .nominal-roll-table th {
+            background-color: #f2f2f2;
+          }
+          .nominal-roll-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+          }
+          .watermark-print {
+            position: fixed;
+            top: 40%;
+            left: 35%;
+            font-size: 60px;
+            color: #cccccc;
+            transform: rotate(-30deg);
+            opacity: 0.2;
+          }
+          .print-date {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #333;
+          }
+          .print-header {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+        </style>
+        </head><body>
+        <div class="print-date">Date: ${printDate}</div>
+        <div class="watermark-print">CAMHS SIALKOT</div>
+        <div class="print-header">
+          <h2>CAMHS SIALKOT</h2>
+          <h3>Patient Nominal Roll</h3>
+        </div>
+        ${content}<br><br><hr><i>CAMHS SIALKOT</i>
+        </body></html>`);
+      win.document.close();
+      win.print();
+    }
+
+    function printReport() {
+      const pid = document.getElementById('tpid').value;
+      const monthYear = document.getElementById('reportMonth').value;
+      printSingleReport(pid, monthYear);
+    }
+
+    function printSingleReport(pid, monthYear) {
+      window.patients = window.patients || {};
+      const data = window.patients[pid];
+      
+      if (!data) {
+        alert("Patient not found");
+        return;
+      }
+      
+      let report;
+      if (monthYear) {
+        // Find specific month's report
+        report = data.progress.find(r => r.month === monthYear);
+      } else {
+        // Get the most recent report
+        report = [...data.progress].sort((a, b) => {
+          return new Date(b.month) - new Date(a.month);
+        })[0];
+      }
+      
+      if (!report) {
+        alert("No report found for the specified month");
+        return;
+      }
+      
+      let content = `
+        <h3>Progress Report: ${data.pname}</h3>
+        <p><b>Patient ID:</b> ${data.pid} | <b>Therapist:</b> ${report.therapistName}</p>
+        <p><b>Disorder:</b> ${data.disorder} | <b>Therapy Type:</b> ${report.therapyType}</p>
+        <p><b>Report Month:</b> ${report.month}</p>
+        <hr>
+        <h4>Therapist Reviews:</h4>
+        <p>${report.reviews || 'No reviews entered'}</p>
+        <h4>Progress Summary:</h4>
+        <p>${report.summary || 'No summary entered'}</p>
+      `;
+      
+      const printDate = new Date().toLocaleDateString();
+      const win = window.open('', '', 'width=900,height=700');
+      win.document.write(`
+        <html><head><title>Progress Report - ${data.pname}</title>
+        <style>
+          body {
+            font-family: sans-serif;
+            background-color: white;
+            padding: 20px;
+          }
+          .watermark-print {
+            position: fixed;
+            top: 40%;
+            left: 35%;
+            font-size: 60px;
+            color: #cccccc;
+            transform: rotate(-30deg);
+            opacity: 0.2;
+          }
+          .print-date {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #333;
+          }
+          .print-header {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+        </style>
+        </head><body>
+        <div class="print-date">Date: ${printDate}</div>
+        <div class="watermark-print">CAMHS SIALKOT</div>
+        <div class="print-header">
+          <h2>CAMHS SIALKOT</h2>
+          <h3>Patient Progress Report</h3>
+        </div>
+        ${content}<br><br><hr><i>CAMHS SIALKOT</i>
+        </body></html>`);
+      win.document.close();
+      win.print();
+    }
+
+    // Backup Functions
+    function downloadBackup() {
+      const data = JSON.stringify(window.patients || {}, null, 2);
+      const currentDate = new Date();
+      const dateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const timeStr = currentDate.toTimeString().split(' ')[0].replace(/:/g, '-'); // HH-MM-SS format
+      const filename = `CAMHS_Backup_${dateStr}_${timeStr}.json`;
+      
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      alert(`Backup downloaded as: ${filename}`);
+    }
+
+    function downloadExcelBackup() {
+      window.patients = window.patients || {};
+      
+      if (Object.keys(window.patients).length === 0) {
+        alert("No patient data to export");
+        return;
+      }
+      
+      // Create CSV content
+      let csvContent = "Patient ID,Name,Rank,Father Name,Age,Gender,Referred By,Therapy,Therapist,Disorder,Admission Date,Address,Contact,Total Visits\n";
+      
+      for (const pid in window.patients) {
+        const data = window.patients[pid];
+        const totalVisits = data.attendance.reduce((sum, a) => sum + (a.sessions || 0), 0);
+        
+        // Escape commas and quotes in text fields
+        const escapeCsv = (text) => {
+          if (text === null || text === undefined) return '';
+          return `"${String(text).replace(/"/g, '""')}"`;
+        };
+        
+        csvContent += [
+          escapeCsv(data.pid),
+          escapeCsv(data.pname),
+          escapeCsv(data.rank),
+          escapeCsv(data.fname),
+          data.age,
+          escapeCsv(data.gender),
+          escapeCsv(data.referred),
+          escapeCsv(data.therapy),
+          escapeCsv(data.therapist),
+          escapeCsv(data.disorder),
+          escapeCsv(data.admit),
+          escapeCsv(data.address),
+          escapeCsv(data.contact),
+          totalVisits
+        ].join(',') + '\n';
+      }
+      
+      // Create download link
+      const currentDate = new Date();
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const filename = `CAMHS_Patients_${dateStr}.csv`;
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function uploadBackup() {
+      const fileInput = document.getElementById('backupFile');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Please select a backup file first.');
+        return;
+      }
+      
+      if (!file.name.endsWith('.json')) {
+        alert('Please select a valid JSON backup file.');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const backupData = JSON.parse(e.target.result);
+          
+          // Validate backup data structure
+          if (typeof backupData !== 'object') {
+            throw new Error('Invalid backup file format');
+          }
+          
+          // Confirm before restoring
+          if (confirm('This will replace all current patient data. Are you sure?')) {
+            window.patients = backupData;
+            generateNominalRoll();
+            alert('Backup restored successfully!');
+            
+            // Clear the file input
+            fileInput.value = '';
+          }
+        } catch (error) {
+          alert('Error reading backup file: ' + error.message);
+        }
+      };
+      
+      reader.readAsText(file);
+    }
+
+    function toggleAutoBackup() {
+      autoBackupEnabled = !autoBackupEnabled;
+      const btn = document.getElementById('autoBackupBtn');
+      const status = document.getElementById('autoBackupStatus');
+      
+      if (autoBackupEnabled) {
+        btn.textContent = 'Disable Auto-Backup';
+        btn.style.backgroundColor = '#f44336';
+        status.innerHTML = '<small>Auto-backup is <strong>enabled</strong>. Backups will be downloaded automatically when you save data.</small>';
+      } else {
+        btn.textContent = 'Enable Auto-Backup';
+        btn.style.backgroundColor = '#9c27b0';
+        status.innerHTML = '<small>Auto-backup is currently <strong>disabled</strong>.</small>';
+      }
+    }
+    
+    function exportToExcel() {
+      downloadExcelBackup();
+    }
+    
+    // Google Drive API Functions
+    function gapiLoaded() {
+      gapi.load('client', initializeGapiClient);
+    }
+    
+    async function initializeGapiClient() {
+      await gapi.client.init({
+        apiKey: API_KEY,
+        discoveryDocs: DISCOVERY_DOCS,
+      });
+      gapiInited = true;
+      maybeEnableButtons();
+    }
+    
+    function gisLoaded() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: '', // defined later
+      });
+      gisInited = true;
+      maybeEnableButtons();
+    }
+    
+    function maybeEnableButtons() {
+      if (gapiInited && gisInited) {
+        document.getElementById('authorize_button').style.visibility = 'visible';
+      }
+    }
+    
+    function handleAuthClick() {
+      tokenClient.callback = async (resp) => {
+        if (resp.error !== undefined) {
+          throw (resp);
+        }
+        document.getElementById('signout_button').style.display = 'block';
+        document.getElementById('authorize_button').innerText = 'Refresh';
+        document.getElementById('backupToDriveBtn').style.display = 'block';
+        googleDriveConnected = true;
+        updateGoogleDriveStatus(true);
+        
+        // Get user email
+        try {
+          const user = await gapi.client.oauth2.userinfo.get();
+          document.getElementById('userEmail').textContent = user.result.email;
+        } catch (err) {
+          console.error('Error getting user info:', err);
+          document.getElementById('userEmail').textContent = 'Connected';
+        }
+      };
+      
+      if (gapi.client.getToken() === null) {
+        tokenClient.requestAccessToken({prompt: 'consent'});
+      } else {
+        tokenClient.requestAccessToken({prompt: ''});
+      }
+    }
+    
+    function handleSignoutClick() {
+      const token = gapi.client.getToken();
+      if (token !== null) {
+        google.accounts.oauth2.revoke(token.access_token);
+        gapi.client.setToken('');
+        document.getElementById('signout_button').style.display = 'none';
+        document.getElementById('authorize_button').innerText = 'Connect Google Drive';
+        document.getElementById('backupToDriveBtn').style.display = 'none';
+        document.getElementById('userEmail').textContent = '';
+        googleDriveConnected = false;
+        updateGoogleDriveStatus(false);
+      }
+    }
+    
+    function updateGoogleDriveStatus(connected) {
+      const statusElement = document.getElementById('googleDriveStatus');
+      if (connected) {
+        statusElement.textContent = 'Connected to Google Drive';
+        statusElement.className = 'google-drive-status connected';
+      } else {
+        statusElement.textContent = 'Not connected to Google Drive';
+        statusElement.className = 'google-drive-status disconnected';
+      }
+    }
+    
+    async function backupToGoogleDrive() {
+      if (!googleDriveConnected) {
+        alert('Please connect to Google Drive first');
+        return;
+      }
+      
+      try {
+        const data = JSON.stringify(window.patients || {}, null, 2);
+        const currentDate = new Date();
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const timeStr = currentDate.toTimeString().split(' ')[0].replace(/:/g, '-');
+        const filename = `CAMHS_Backup_${dateStr}_${timeStr}.json`;
+        const contentType = 'application/json';
+        
+        const file = new Blob([data], {type: contentType});
+        const metadata = {
+          name: filename,
+          mimeType: contentType
+        };
+        
+        const accessToken = gapi.client.getToken().access_token;
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
+        form.append('file', file);
+        
+        const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+          method: 'POST',
+          headers: new Headers({'Authorization': 'Bearer ' + accessToken}),
+          body: form,
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
+        
+        alert(`Backup successfully saved to Google Drive as: ${filename}`);
+      } catch (err) {
+        console.error('Error uploading to Google Drive:', err);
+        alert('Error uploading to Google Drive: ' + err.message);
+      }
+    }
+
+    // Initialize the nominal roll on page load
+    window.onload = function() {
+      generateNominalRoll();
+      
+      // Load Google API client library and set up auth
+      gapiLoaded();
+      gisLoaded();
+    };
+  </script>
+  
+  <!-- Load the Google API client library -->
+  <script async defer src="https://apis.google.com/js/api.js" 
+    onload="gapiLoaded()"></script>
+  <script async defer src="https://accounts.google.com/gsi/client" 
+    onload="gisLoaded()"></script>
+</body>
+</html>
